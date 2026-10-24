@@ -25,10 +25,10 @@ We are IT students and developers of POS System, and **Group 5** built every cod
 
 | Member | Role | Contributions |
 | :--- | :--- | :--- |
-| **Wadanhyll Shaun Tolentino** | Leader &amp; Lead Developer | Checks for bugs | Documentator | 
+| **Wadanhyll Shaun Tolentino** | Leader &amp; Lead Developer | Checks for bugs, Documentator, Assisted members when it comes to difficult logical tasks | 
 | **Madelaine Lano** | Assistant Developer | Helped checked for bugs | 
 | **Raniel Magpatoc** | Assistant Developer | Helped checked for bugs | 
-| **Justin Kobe Litonjua** | Assistant Developer | Documentator | Helped checked for bugs |
+| **Justin Kobe Litonjua** | Assistant Developer | Documentator, Helped checked for bugs |
 
 ---
 
