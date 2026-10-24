@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
 const int maxusers = 20;
@@ -8,6 +9,60 @@ string accountUser[maxusers] = {"admin", "supervisor", "cashier"};
 string accountPass[maxusers] = {"Group5", "Group5", "Group5"};
 string accountRole[maxusers] = {"Admin", "Supervisor", "Cashier"};
 int accountCount = 3;
+
+
+// Prints a number with 2 decimal places
+void printMoney(double amount)
+{
+    int pesos = amount;
+    int centavos = (amount - pesos) * 100 + 0.5;
+
+    if (centavos == 100)
+    {
+        pesos++;
+        centavos = 0;
+    }
+
+    cout << pesos << ".";
+
+    if (centavos < 10)
+    cout << "0";
+
+    cout << centavos;
+}
+
+int readNumber(int max)
+{
+    string digit[10] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+    string text;
+    cin >> text;
+
+    // try every number from 0 to max and check if it matches what was typed
+    for (int n = 0; n <= max; n++)
+    {
+        string numberText = "";
+        int temp = n;
+
+        if (n == 0)
+        {
+            numberText = "0";
+        }
+
+        while (temp > 0)
+        {
+            numberText = digit[temp % 10] + numberText;
+            temp = temp / 10;
+        }
+
+        if (text == numberText)
+        {
+            return n;
+        }
+    }
+
+    return -1;   // no match = a letter or symbol was typed
+}
+
 
  // POS MONITORING SYSTEM //
 void showMenu(string role) {
@@ -31,168 +86,30 @@ void showMenu(string role) {
     cout << "Select: ";
 }
 
-// ADMIN for the inventory system//
-void admin(string items[], int inventory[]) {
 
-    int pick;
-    char again3;
-
-    do
-    {
-        cout << "\n===== INVENTORY =====" << endl;
-        for (int i = 0; i < 3; i++) {
-            cout << (i + 1) << ". " << items[i] <<endl;
-        }
-        cout << "Check Product: ";
-        cin >> pick;
-
-        int idx = pick - 1;
-        if (idx >= 0 && idx < 3)
-        {
-            cout << items[idx] << ": " << inventory[idx] << " Pc(s) remaining." << endl;
-        }
-        else
-        {
-            cout << "Invalid Input " << endl;
-        }
-
-        cout << "\nCheck another product? (y/n): ";
-        cin >> again3;
-
-    } while (again3 == 'y' || again3 == 'Y');
-}
-
-// SUPERVISOR for the monitoring system//
-void supervisor(string items[], double soldRevenue[], int soldQty[], int totalOrders, double totalSales) {
-
-    cout << "\n===== SALES MONITORING =====" << endl;
-    for (int i = 0; i < 3; i++) {
-        cout << items[i] << " - Sold: " << soldQty[i] << " pc(s) | Revenue: PHP " << soldRevenue[i] << endl;
-    }
-    cout << "-----------------------------" << endl;
-    cout << "Total Orders Placed: " << totalOrders << endl;
-    cout << "Total Sales: PHP " << totalSales << endl;
-    cout << "=============================" << endl;
-}
-
-// CASHIER for the ordering system //
-void cashier(string items[], double prices[], int inventory[], double discRate, double taxRate, int &totalOrders, double &totalSales, int soldQty[], double soldRevenue[]) {
-
-    char orderAgain;
-
-    do
-    {
-        int order;
-        int quantity;
-        char discountAnswer;
-        string chosenItem = "";
-        int index = -1;
-        double subtotal = 0;
-        double discount = 0;
-        double tax = 0;
-        double total = 0;
-        double amountPaid = 0;
-        double change = 0;
-
-        cout << "\n==== MENU ====" << endl;
-        for (int i = 0; i < 3; i++) {
-            cout << (i + 1) << ". " << items[i] << " - PHP " << prices[i] << endl;
-        }
-
-        cout << "Enter your choice: ";
-        cin >> order;
-
-        switch (order)
-        {
-            case 1:
-            case 2:
-            case 3:
-                index = order - 1;
-                chosenItem = items[index];
-                break;
-
-            default:
-                cout << "Invalid item number." << endl;
-        }
-
-        if (index != -1)
-        {
-            cout << "Enter Quantity: ";
-            cin >> quantity;
-
-            if (quantity <= 0)
-            {
-                cout << "Quantity must be more than 0!" << endl;
-            }
-            else if (quantity > inventory[index])
-            {
-                cout << "Error: Not enough stock available! Current Stock: " << inventory[index] << endl;
-            }
-            else
-            {
-                subtotal = quantity * prices[index];
-
-                cout << "Are you a Senior Citizen/PWD? (y/n): ";
-                cin >> discountAnswer;
-
-                if (discountAnswer == 'y' || discountAnswer == 'Y')
-                {
-                    discount = subtotal * discRate;
-                }
-
-                tax = (subtotal - discount) * taxRate;
-                total = subtotal - discount + tax;
-
-                cout << "Amount to pay: PHP " << total << endl;
-                cout << "Enter amount paid: ";
-                cin >> amountPaid;
-
-                if (amountPaid < total)
-                {
-                    cout << "Insufficient payment!" << endl;
-                }
-                else
-                {
-                    change = amountPaid - total;
-
-                    inventory[index] -= quantity;
-
-                    cout << "\n=== ORDER RECEIPT ===" << endl;
-                    cout << "Item: " << chosenItem << endl;
-                    cout << "Quantity: " << quantity << endl;
-                    cout << "Subtotal: PHP " << subtotal << endl;
-                    cout << "Discount: PHP " << discount << endl;
-                    cout << "Tax (12%): PHP " << tax << endl;
-                    cout << "Total: PHP " << total << endl;
-                    cout << "Amount Paid: PHP " << amountPaid << endl;
-                    cout << "Change: PHP " << change << endl;
-                    cout << "Order placed successfully!" << endl;
-
-                    totalOrders++;
-                    totalSales = totalSales + total;
-
-                    soldQty[index] = soldQty[index] + quantity;
-                    soldRevenue[index] = soldRevenue[index] + total;
-                }
-            }
-        }
-
-        cout << "\nProcess another order? (y/n): ";
-        cin >> orderAgain;
-
-    } while (orderAgain == 'y' || orderAgain == 'Y');
-}
-
-// Find the index of an employee name in the array. Returns -1 if not found.
-int findEmployeeIndex(string usernames[], int usercount, string name)
+// Shows everything currently in the order and returns the subtotal
+double showOrder(string items[], double prices[], int cartQty[])
 {
-    for (int i = 0; i < usercount; i++)
+    double subtotal = 0;
+
+    cout << "\n--- CURRENT ORDER ---" << endl;
+    for (int i = 0; i < 13; i++)
     {
-        if (usernames[i] == name)
-            return i;
+        if (cartQty[i] > 0)
+        {
+            cout << items[i] << " x" << cartQty[i] << " = PHP ";
+            printMoney(cartQty[i] * prices[i]);
+            cout << endl;
+            subtotal = subtotal + cartQty[i] * prices[i];
+        }
     }
-    return -1;
+    cout << "Subtotal: PHP ";
+    printMoney(subtotal);
+    cout << endl;
+
+    return subtotal;
 }
+
 
 // Find the index of an account by username. Returns -1 if not found.
 int findAccountIndex(string usernames[], int count, string name)
@@ -214,22 +131,23 @@ int main()
     // POS MONITORING SYSTEM //
     // Declared here (outside the login loop) so inventory, sales, and
     // employee records persist even after logging out and logging back in.
-    string items[] = {"Beef Tapa", "Longganisa", "Corned Beef"};
-    double prices[] = {45, 35, 50};
-    int inventory[] = {100, 100, 100};
+    string items[] = {"Beef Tapa", "Longganisa", "Corned Beef", "Bistek", "Menudo", "Torta", "Rice", "Fried Rice", "Java Rice", "Soup", "Nestea", "Coke", "Water"};
+    double prices[] = {45.00, 35.00, 50.00, 65.00, 55.00, 30.00, 15.00, 25.00, 20.00, 10.00, 20.00, 25.00, 10.00};
+    int inventory[] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
 
     double discRate = 0.20;
     double taxRate = 0.12;
 
-    int soldQty[] = {0, 0, 0};
-    double soldRevenue[] = {0, 0, 0};
+    int soldQty[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
+    double soldRevenue[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int cartQty[13] = {0};   
     int totalOrders = 0;
     double totalSales = 0;
 
-    char loginAgain = 'y';
+    string loginAgain = "y";
 
     // Keep the whole system running so a new user can log in after someone logs out
-    while (loginAgain == 'y' || loginAgain == 'Y')
+    while (loginAgain == "y" || loginAgain == "Y" || loginAgain == "yes" || loginAgain == "YES" || loginAgain == "Yes")
     {
         // LOGIN SYSTEM //
         string username, password;
@@ -268,7 +186,7 @@ int main()
             continue;
         }
 
-        int choice;
+        char choice;
 
         // Keep this user's session running until they log out
         do
@@ -279,7 +197,7 @@ int main()
             switch (choice)
             {
             // MONITORING // - Supervisor only
-            case 1:
+            case '1':
             {
                 if (currentRole != "Supervisor")
                 {
@@ -287,12 +205,23 @@ int main()
                     break;
                 }
 
-                supervisor(items, soldRevenue, soldQty, totalOrders, totalSales);
+                cout << "\n===== SALES MONITORING =====" << endl;
+                for (int i = 0; i < 13; i++) {
+                    cout << items[i] << " - Sold: " << soldQty[i] << " pc(s) | Revenue: PHP ";
+                    printMoney(soldRevenue[i]);
+                    cout << endl;
+                }
+                cout << "-----------------------------" << endl;
+                cout << "Total Orders Placed: " << totalOrders << endl;
+                cout << "Total Sales: PHP ";
+                printMoney(totalSales);
+                cout << endl;
+                cout << "=============================" << endl;
                 break;
             }
 
             // VIEW INVENTORY // - Admin only
-            case 2:
+            case '2':
             {
                 if (currentRole != "Admin")
                 {
@@ -300,12 +229,38 @@ int main()
                     break;
                 }
 
-                admin(items, inventory);
+                int pick;
+                string again3;
+
+                do
+                {
+                    cout << "\n===== INVENTORY =====" << endl;
+                    for (int i = 0; i < 13; i++) {
+                        cout << (i + 1) << ". " << items[i] <<endl;
+                    }
+                    cout << "Check Product: ";
+                    pick = readNumber(13);
+
+                    int idx = pick - 1;
+                    if (idx >= 0 && idx < 13)
+                    {
+                        cout << items[idx] << ": " << inventory[idx] << " Pc(s) remaining." << endl;
+                    }
+                    else
+                    {
+                        cout << "Invalid Input " << endl;
+                    }
+
+                    cout << "\nCheck another product? (y/n): ";
+                    cin >> again3;
+
+                } while (again3 == "y" || again3 == "Y" || again3 == "yes" || again3 == "YES" || again3 == "Yes");
+
                 break;
             }
 
             // ORDER SYSTEM // - Cashier only
-            case 3:
+            case '3':
             {
                 if (currentRole != "Cashier")
                 {
@@ -313,12 +268,267 @@ int main()
                     break;
                 }
 
-                cashier(items, prices, inventory, discRate, taxRate, totalOrders, totalSales, soldQty, soldRevenue);
+                string orderAgain;
+                string payNow;
+
+                // Check if there is an unfinished order from before
+                bool hasItems = false;
+                for (int i = 0; i < 13; i++)
+                {
+                    if (cartQty[i] > 0)
+                        hasItems = true;
+                }
+
+                // addItems decides if we show the menu to add items, or go straight to payment
+                bool addItems = true;
+
+                if (hasItems)
+                {
+                    string addMore;
+                    cout << "\nYou have an unfinished order." << endl;
+                    showOrder(items, prices, cartQty);
+
+                    cout << "Add more items? (y/n): ";
+                    cin >> addMore;
+
+                    if (!(addMore == "y" || addMore == "Y" || addMore == "yes" || addMore == "YES" || addMore == "Yes"))
+                    {
+                        addItems = false;   // go straight to payment
+                    }
+                }
+
+                // ===== ADD ITEMS =====
+                if (addItems)
+                {
+                    do
+                    {
+                        int order;
+                        int quantity;
+
+                        cout << "\n==== MENU ====" << endl;
+                        for (int i = 0; i < 6; i++) {
+                            cout << (i + 1) << ". " << "A" << (i + 1) << " " << items[i] << " - PHP " << prices[i] << ".00 " << endl;
+                        }
+
+                        cout << "\n === ADD ONS === " << endl;
+                        for (int j = 6; j < 13; j++)
+                        {
+                            cout << (j + 1) << ". " << "A" << (j + 1) << " " << items[j] << " - PHP " << prices[j] << ".00 " << endl;
+                        }
+
+                        cout << "Enter your choice: ";
+                        order = readNumber(13);
+
+                        if (order >= 1 && order <= 13)
+                        {
+                            int index = order - 1;
+
+                            cout << "Enter Quantity: ";
+                            quantity = readNumber(999);
+
+                            if (quantity <= 0)
+                            {
+                                cout << "Quantity must be more than 0!" << endl;
+                            }
+                            else if (quantity + cartQty[index] > inventory[index])
+                            {
+                                cout << "Error: Not enough stock! Available: " << (inventory[index] - cartQty[index]) << endl;
+                            }
+                            else
+                            {
+                                cartQty[index] = cartQty[index] + quantity;
+                                cout << items[index] << " added to the order." << endl;
+                            }
+                        }
+                        else
+                        {
+                            cout << "Invalid item number." << endl;
+                        }
+
+                        showOrder(items, prices, cartQty);
+
+                        cout << "\nProcess another order? (y/n): ";
+                        cin >> orderAgain;
+
+                    } while (orderAgain == "y" || orderAgain == "Y" || orderAgain == "yes" || orderAgain == "YES" || orderAgain == "Yes");
+                }
+
+                // AFTER "n"
+                // Check again if there is anything in the order. If nothing, there is nothing to pay.
+                hasItems = false;
+                for (int i = 0; i < 13; i++)
+                {
+                    if (cartQty[i] > 0)
+                        hasItems = true;
+                }
+
+                if (hasItems)
+                {
+                    cout << "Pay now? (y/n): ";
+                    cin >> payNow;
+
+                    if (!(payNow == "y" || payNow == "Y" || payNow == "yes" || payNow == "YES" || payNow == "Yes"))
+                    {
+                        cout << "Order saved. Choose Order [3] again to continue it." << endl;
+                    }
+                    else
+                    {
+                        // ===== CHECKOUT =====
+                        string discountAnswer;
+                        double appliedDisc = 0;
+                        double subtotal = showOrder(items, prices, cartQty);
+
+                        cout << "Are you a Senior Citizen/PWD? (y/n): ";
+                        cin >> discountAnswer;
+
+                        if (discountAnswer == "y" || discountAnswer == "Y" || discountAnswer == "yes" || discountAnswer == "YES" || discountAnswer == "Yes")
+                        {
+                            appliedDisc = discRate;
+                        }
+
+                        double discount = subtotal * appliedDisc;
+                        double tax = (subtotal - discount) * taxRate;
+                        double total = subtotal - discount + tax;
+
+                        cout << "\nVAT 12% added ";
+                        printMoney(tax);
+
+                        cout << "\nAmount to pay: PHP ";
+                        printMoney(total);
+                        cout << endl;
+
+                        double amountPaid = 0;
+                        bool cancelled = false;
+                        bool firstTry = true;
+                        int paidCentavos = 0;
+                        int totalCentavos = (int)(total * 100 + 0.5);   // total in centavos, e.g. 71.68 becomes 7168
+                        string paidText;
+
+                        do
+                        {
+                            if (firstTry)
+                            {
+                                cout << "Enter amount paid: ";
+                            }
+                            else
+                            {
+                                cout << "Insufficient payment! Your order is still saved." << endl;
+                                cout << "Enter amount paid again (0 to cancel): ";
+                            }
+                            firstTry = false;
+
+                            cin >> paidText;
+
+                            // Read the typed amount as centavos. Invalid input stays at -1.
+                            int dots = 0;
+                            bool valid = paidText.length() > 0;
+                            for (int k = 0; k < (int)paidText.length(); k++)
+                            {
+                                if (paidText[k] == '.')
+                                    dots++;
+                                else if (paidText[k] < '0' || paidText[k] > '9')
+                                    valid = false;
+                            }
+                            if (dots > 1 || paidText == ".")
+                                valid = false;
+
+                            paidCentavos = -1;
+                            if (valid)
+                            {
+                                int whole = 0;
+                                int cents = 0;
+                                int centDigits = 0;
+                                bool afterDot = false;
+
+                                for (int k = 0; k < (int)paidText.length(); k++)
+                                {
+                                    if (paidText[k] == '.')
+                                        afterDot = true;
+                                    else if (!afterDot)
+                                        whole = whole * 10 + (paidText[k] - '0');
+                                    else if (centDigits < 2)
+                                    {
+                                        cents = cents * 10 + (paidText[k] - '0');
+                                        centDigits++;
+                                    }
+                                }
+                                if (centDigits == 1)
+                                    cents = cents * 10;   // "71.6" means 60 centavos
+
+                                paidCentavos = whole * 100 + cents;
+                            }
+
+                            if (paidCentavos == 0)
+                            {
+                                cout << "Payment cancelled. Choose Order [3] again to continue it." << endl;
+                                cancelled = true;
+                            }
+
+                        } while (paidCentavos < totalCentavos && cancelled == false);
+
+                        amountPaid = paidCentavos / 100.0;
+
+                        // Only print the receipt if the payment was not cancelled
+                        if (cancelled == false)
+                        {
+                            double change = amountPaid - total;
+
+                            cout << "\n=== ORDER RECEIPT ===" << endl;
+                            for (int i = 0; i < 13; i++)
+                            {
+                                if (cartQty[i] > 0)
+                                {
+                                    cout << items[i] << " x" << cartQty[i] << endl;
+
+                                    // Take the stock out and record the sale
+                                    inventory[i] = inventory[i] - cartQty[i];
+                                    soldQty[i] = soldQty[i] + cartQty[i];
+
+                                    double lineSub = cartQty[i] * prices[i];
+                                    double lineTotal = (lineSub - lineSub * appliedDisc) * (1 + taxRate);
+                                    soldRevenue[i] = soldRevenue[i] + lineTotal;
+
+                                    cartQty[i] = 0;   // clear the order
+                                }
+                            }
+
+                            cout << "Subtotal: PHP ";
+                            printMoney(subtotal);
+                            cout << endl;
+
+                            cout << "Discount: PHP ";
+                            printMoney(discount);
+                            cout << endl;
+
+                            cout << "Tax (12%): PHP ";
+                            printMoney(tax);
+                            cout << endl;
+
+                            cout << "Total: PHP ";
+                            printMoney(total);
+                            cout << endl;
+
+                            cout << "Amount Paid: PHP ";
+                            printMoney(amountPaid);
+                            cout << endl;
+
+                            cout << "Change: PHP ";
+                            printMoney(change);
+                            cout << endl;
+
+                            cout << "Order placed successfully!" << endl;
+
+                            totalOrders++;
+                            totalSales = totalSales + total;
+                        }
+                    }
+                }
+
                 break;
             }
 
             // EMPLOYEE MANAGEMENT SYSTEM // - Admin only
-            case 4:
+            case '4':
             {
                 if (currentRole != "Admin")
                 {
@@ -326,7 +536,7 @@ int main()
                     break;
                 }
 
-                int userchoice;
+                char userchoice;
 
                 do
                 {
@@ -340,7 +550,7 @@ int main()
 
                     switch (userchoice)
                     {
-                        case 1:
+                        case '1':
                         {
                             cout << "\n===== EMPLOYEE LIST =====" << endl;
                             if (usercount == 0)
@@ -355,7 +565,7 @@ int main()
                             break;
                         }
 
-                        case 2:
+                        case '2':
                         {
                             if (usercount >= maxusers)
                             {
@@ -367,7 +577,7 @@ int main()
                                 cout << "Enter new user's name: ";
                                 cin >> newName;
 
-                                if (findEmployeeIndex(usernames, usercount, newName) != -1)
+                                if (findAccountIndex(usernames, usercount, newName) != -1)
                                 {
                                     cout << "That user already exists." << endl;
                                 }
@@ -381,7 +591,7 @@ int main()
                             break;
                         }
 
-                        case 3:
+                        case '3':
                         {
                             if (usercount == 0)
                             {
@@ -398,7 +608,8 @@ int main()
                                 cout << "Enter the name of the user to remove: ";
                                 cin >> removeusers;
 
-                                int idx = findEmployeeIndex(usernames, usercount, removeusers);
+                                // idx = index of the user to remove
+                                int idx = findAccountIndex(usernames, usercount, removeusers);
 
                                 if (idx == -1)
                                 {
@@ -407,7 +618,6 @@ int main()
                                 else
                                 {
                                     // Shift everything after idx back by one to fill the gap
-                                    // idx = index of the user to remove
                                     for (int i = idx; i < usercount - 1; i++)
                                     {
                                         usernames[i] = usernames[i + 1];
@@ -419,20 +629,20 @@ int main()
                             break;
                         }
 
-                        case 0:
+                        case '0':
                             break;
 
                         default:
                             cout << "Invalid selection." << endl;
                     }
 
-                } while (userchoice != 0);
+                } while (userchoice != '0');
 
                 break;
             }
 
             // LOG OUT //
-            case 0:
+            case '0':
                 cout << "Logging out " << currentRole << "...\n";
                 break;
 
@@ -440,7 +650,7 @@ int main()
                 cout << "Invalid selection." << endl;
         }
 
-        } while (choice != 0);
+        } while (choice != '0');
 
         cout << "\nLog in as another user? (y/n): ";
         cin >> loginAgain;
