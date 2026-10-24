@@ -17,6 +17,21 @@ A simple Point of Sale (POS) system made in C++.
 |------|-------------|
 | `fp.cpp` | Main program of the POS system |
 
+---
+
+## Meet the Team
+
+We are IT students and developers of POS System, and **Group 5** built every code block from scratch with the help of AI.
+
+| Member | Role | Contributions |
+| :--- | :--- | :--- |
+| **Wadanhyll Shaun Tolentino** | Leader &amp; Lead Developer | Checks for bugs | Documentator | 
+| **Madelaine Lano** | &amp; Assistant Developer | Helped checked for bugs | 
+| **Raniel Magpatoc** | &amp; Assistant Developer | Helped checked for bugs | 
+| **Justin Kobe Litonjua** | &amp; Assistant Developer | Documentator | Helped checked for bugs |
+
+---
+
 ## How to Compile and Run
 
 ```bash
