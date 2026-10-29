@@ -10,7 +10,6 @@ string accountPass[maxusers] = {"Group5", "Group5", "Group5"};
 string accountRole[maxusers] = {"Admin", "Supervisor", "Cashier"};
 int accountCount = 3;
 
-
 // Prints a number with 2 decimal places
 void printMoney(double amount)
 {
@@ -37,7 +36,6 @@ int readNumber(int max)
     string text;
     cin >> text;
 
-    // try every number from 0 to max and check if it matches what was typed
     for (int n = 0; n <= max; n++)
     {
         string numberText = "";
@@ -60,9 +58,8 @@ int readNumber(int max)
         }
     }
 
-    return -1;   // no match = a letter or symbol was typed
+    return -1;  
 }
-
 
  // POS MONITORING SYSTEM //
 void showMenu(string role) {
@@ -85,7 +82,6 @@ void showMenu(string role) {
     cout << "Exit [0]" << endl;
     cout << "Select: ";
 }
-
 
 // Shows everything currently in the order and returns the subtotal
 double showOrder(string items[], double prices[], int cartQty[])
@@ -110,8 +106,6 @@ double showOrder(string items[], double prices[], int cartQty[])
     return subtotal;
 }
 
-
-// Find the index of an account by username. Returns -1 if not found.
 int findAccountIndex(string usernames[], int count, string name)
 {
     for (int i = 0; i < count; i++)
@@ -129,8 +123,6 @@ int main()
     int usercount = 3;
 
     // POS MONITORING SYSTEM //
-    // Declared here (outside the login loop) so inventory, sales, and
-    // employee records persist even after logging out and logging back in.
     string items[] = {"Beef Tapa", "Longganisa", "Corned Beef", "Bistek", "Menudo", "Torta", "Rice", "Fried Rice", "Java Rice", "Soup", "Nestea", "Coke", "Water"};
     double prices[] = {45.00, 35.00, 50.00, 65.00, 55.00, 30.00, 15.00, 25.00, 20.00, 10.00, 20.00, 25.00, 10.00};
     int inventory[] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
@@ -140,7 +132,7 @@ int main()
 
     int soldQty[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
     double soldRevenue[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int cartQty[13] = {0};   
+    int cartQty[13] = {0};   // saved order: how many of each item is in it
     int totalOrders = 0;
     double totalSales = 0;
 
@@ -278,7 +270,6 @@ int main()
                     if (cartQty[i] > 0)
                         hasItems = true;
                 }
-
                 // addItems decides if we show the menu to add items, or go straight to payment
                 bool addItems = true;
 
@@ -296,7 +287,6 @@ int main()
                         addItems = false;   // go straight to payment
                     }
                 }
-
                 // ===== ADD ITEMS =====
                 if (addItems)
                 {
@@ -352,7 +342,6 @@ int main()
 
                     } while (orderAgain == "y" || orderAgain == "Y" || orderAgain == "yes" || orderAgain == "YES" || orderAgain == "Yes");
                 }
-
                 // AFTER "n"
                 // Check again if there is anything in the order. If nothing, there is nothing to pay.
                 hasItems = false;
@@ -361,7 +350,6 @@ int main()
                     if (cartQty[i] > 0)
                         hasItems = true;
                 }
-
                 if (hasItems)
                 {
                     cout << "Pay now? (y/n): ";
@@ -420,53 +408,57 @@ int main()
                             cin >> paidText;
 
                             // Read the typed amount as centavos. Invalid input stays at -1.
-                            int dots = 0;
-                            bool valid = paidText.length() > 0;
-                            for (int k = 0; k < (int)paidText.length(); k++)
+                        int dots = 0;
+                        bool valid = (paidText != "");
+                        for (int k = 0; paidText[k] != '\0'; k++)
+                        {
+                            if (paidText[k] == '.')
+                                dots++;
+                            else if (paidText[k] < '0' || paidText[k] > '9')
+                                valid = false;
+                        }
+                        if (dots > 1 || paidText == ".")
+                            valid = false;
+
+                        paidCentavos = -1;
+                        if (valid)
+                        {
+                            int whole = 0;
+                            int cents = 0;
+                            int centDigits = 0;
+                            bool afterDot = false;
+
+                            for (int k = 0; paidText[k] != '\0'; k++)
                             {
                                 if (paidText[k] == '.')
-                                    dots++;
-                                else if (paidText[k] < '0' || paidText[k] > '9')
-                                    valid = false;
-                            }
-                            if (dots > 1 || paidText == ".")
-                                valid = false;
-
-                            paidCentavos = -1;
-                            if (valid)
-                            {
-                                int whole = 0;
-                                int cents = 0;
-                                int centDigits = 0;
-                                bool afterDot = false;
-
-                                for (int k = 0; k < (int)paidText.length(); k++)
+                                    afterDot = true;
+                                else if (!afterDot)
+                                    whole = whole * 10 + (paidText[k] - '0');
+                                else if (centDigits < 2)
                                 {
-                                    if (paidText[k] == '.')
-                                        afterDot = true;
-                                    else if (!afterDot)
-                                        whole = whole * 10 + (paidText[k] - '0');
-                                    else if (centDigits < 2)
-                                    {
-                                        cents = cents * 10 + (paidText[k] - '0');
-                                        centDigits++;
-                                    }
+                                    cents = cents * 10 + (paidText[k] - '0');
+                                    centDigits++;
                                 }
-                                if (centDigits == 1)
-                                    cents = cents * 10;   // "71.6" means 60 centavos
-
-                                paidCentavos = whole * 100 + cents;
                             }
+                            if (centDigits == 1)
+                                cents = cents * 10;   // "71.6" means 60 centavos
 
-                            if (paidCentavos == 0)
-                            {
-                                cout << "Payment cancelled. Choose Order [3] again to continue it." << endl;
-                                cancelled = true;
-                            }
 
-                        } while (paidCentavos < totalCentavos && cancelled == false);
+                            paidCentavos = whole * 100 + cents;
+                        }
 
-                        amountPaid = paidCentavos / 100.0;
+                        if (paidCentavos == 0)
+                        {
+                            cancelled = true;
+                            break;
+                        }
+
+                        if (paidCentavos >= totalCentavos)
+                        {
+                            amountPaid = paidCentavos / 100.0;
+                            break;
+                        }
+                    } while (true);
 
                         // Only print the receipt if the payment was not cancelled
                         if (cancelled == false)
@@ -523,10 +515,8 @@ int main()
                         }
                     }
                 }
-
                 break;
             }
-
             // EMPLOYEE MANAGEMENT SYSTEM // - Admin only
             case '4':
             {
@@ -535,7 +525,6 @@ int main()
                     cout << "Access Denied: Admins only." << endl;
                     break;
                 }
-
                 char userchoice;
 
                 do
@@ -608,7 +597,6 @@ int main()
                                 cout << "Enter the name of the user to remove: ";
                                 cin >> removeusers;
 
-                                // idx = index of the user to remove
                                 int idx = findAccountIndex(usernames, usercount, removeusers);
 
                                 if (idx == -1)
@@ -618,6 +606,7 @@ int main()
                                 else
                                 {
                                     // Shift everything after idx back by one to fill the gap
+                                    // idx = index of the user to remove
                                     for (int i = idx; i < usercount - 1; i++)
                                     {
                                         usernames[i] = usernames[i + 1];
@@ -635,12 +624,9 @@ int main()
                         default:
                             cout << "Invalid selection." << endl;
                     }
-
                 } while (userchoice != '0');
-
                 break;
             }
-
             // LOG OUT //
             case '0':
                 cout << "Logging out " << currentRole << "...\n";
